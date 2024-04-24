@@ -23,7 +23,7 @@ app.get('/customers', async (req, res) => {
   app.get('/customers/:id', async (req, res) => {
     try {
         const { id } = req.params;
-    const data = await pool.query(' SELECT * FROM customers WHERE id=$1;', [id]);
+    const data = await pool.query('SELECT * FROM customers WHERE id=$1;', [id]);
     res.json(data.rows[0]);
         
     } catch (err) {
@@ -33,8 +33,23 @@ app.get('/customers', async (req, res) => {
     
   })
 
-  app.put('/customers')
-
+  app.put('/customers/:customerId', (req, res) => {
+    const { customerId } = req.params;
+    const { name, email, phone, address } = req.body;
+  
+    pool.query(
+      'UPDATE customers SET name = $1, email = $2, phone = $3, address = $4 WHERE id = $5;',
+      [name, email, phone, address, customerId],
+      (error, results) => {
+        if (error) {
+          console.error(error);
+          res.status(500).send('Error updating customer');
+        } else {
+          res.status(200).send('Customer updated successfully');
+        }
+      }
+    );
+  });
 const PORT = process.env.PORT || 5000;
 
 app.get('/', (req, res) =>{
