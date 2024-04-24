@@ -10,8 +10,18 @@ app.use(express.json());
 
 const pool = new Pool();
 
+app.get('/customers', (req, res) =>{
 
+    pool.query('SELECT * FROM customers')
+    .then((data) => {
+        res.json(data.rows);
+    })
+    .catch((err) => {
 
+    console.error('Error:', err);
+    res.status(500).json({ error: 'An error occurred' });
+  });
+});
 
 const PORT = process.env.PORT || 5000;
 
