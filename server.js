@@ -12,7 +12,8 @@ const pool = new Pool();
 
 app.get('/customers', async (req, res) => {
     try {
-      const data = await pool.query('SELECT * FROM customers');
+      const data = await pool
+      .query('SELECT * FROM customers');
       res.json(data.rows);
     } catch (err) {
       console.error('Error:', err);
@@ -33,6 +34,22 @@ app.get('/customers', async (req, res) => {
     
   })
 
+  app.post('/customers', (req, res) => {
+    const {name, email, phone, address} = req.body
+
+    pool.query('INSERT INTO customers (name, email, phone, address) VALUES ($1, $2, $3, $4);',
+    [name, email, phone, address],
+    (err, results) =>{
+        if (err) {
+            console.log(err)
+            res.status(500).send('Error creating customer')
+        } else{
+            res.status(201).send('Success creating customer')
+        }
+    }
+)
+  })
+
   app.put('/customers/:customerId', (req, res) => {
     const { customerId } = req.params;
     const { name, email, phone, address } = req.body;
@@ -46,6 +63,23 @@ app.get('/customers', async (req, res) => {
           res.status(500).send('Error updating customer');
         } else {
           res.status(200).send('Customer updated successfully');
+        }
+      }
+    );
+  });
+
+  app.delete('/customers/:customerId', (req, res) => {
+    const { customerId } = req.params;
+  
+    pool.query(
+      'DELETE FROM customers WHERE id = $1;',
+      [customerId],
+      (error, results) => {
+        if (error) {
+          console.error(error);
+          res.status(500).send('Error deleting customer');
+        } else {
+          res.status(200).send('Customer deleted successfully');
         }
       }
     );
